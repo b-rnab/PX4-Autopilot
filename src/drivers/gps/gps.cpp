@@ -261,7 +261,7 @@ private:
 	/**
 	 * Publish raw GNSS observations
 	 */
-	void 				publishRawObservations(const sensor_gps_raw_s &raw);
+	void 				publishRawObservations(sensor_gps_raw_s &raw);
 
 	/**
 	 * This is an abstraction for the poll on serial used.
@@ -474,6 +474,7 @@ int GPS::callback(GPSCallbackType type, void *data1, int data2, void *user)
 		if (data1 && data2 == sizeof(sensor_gps_raw_s)) {
 			gps->publishRawObservations(*static_cast<sensor_gps_raw_s *>(data1));
 		}
+
 		break;
 
 	case GPSCallbackType::surveyInStatus:
@@ -1435,7 +1436,7 @@ GPS::publishRelativePosition(sensor_gnss_relative_s &gnss_relative)
 }
 
 void
-GPS::publishRawObservations(const sensor_gps_raw_s &raw)
+GPS::publishRawObservations(sensor_gps_raw_s &raw)
 {
 	sensor_gps_raw_s raw_report{raw};
 	raw_report.device_id = get_device_id();
