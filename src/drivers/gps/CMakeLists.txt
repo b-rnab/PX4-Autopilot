@@ -58,3 +58,10 @@ px4_add_module(
 		git_gps_devices
 		gnss
 	)
+
+# Optional: enable verbose UBX parser tracing and debug logs at build time
+# Usage: pass -DPX4_GPS_UBX_TRACE=ON to cmake to enable both traces and debug logs
+option(PX4_GPS_UBX_TRACE "Enable verbose UBX parser trace/debug logs" OFF)
+if(PX4_GPS_UBX_TRACE)
+    add_definitions(-DUBX_TRACE_ENABLE=1 -DUBX_DEBUG_ENABLE=1)
+endif()

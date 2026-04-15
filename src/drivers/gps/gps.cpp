@@ -35,6 +35,7 @@
  * @file gps.cpp
  * Driver for the GPS on a serial/spi port
  */
+#define DEBUG_BUILD
 
 #ifdef __PX4_NUTTX
 #include <nuttx/clock.h>
@@ -514,8 +515,15 @@ int GPS::pollOrRead(uint8_t *buf, size_t buf_length, int timeout)
 		ret = _uart.readAtLeast(buf, buf_length, math::min(character_count, buf_length), timeout_adjusted);
 
 		if (ret > 0) {
-			_num_bytes_read += ret;
-		}
+    _num_bytes_read += ret;
+  //  PX4_INFO("GPS RX %d bytes: %02x %02x %02x %02x %02x %02x",
+    //         ret,
+    //         buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+} else if (ret == 0) {
+    //PX4_DEBUG("GPS RX timeout");
+} else {
+//    PX4_WARN("GPS RX error: %d", ret);
+}
 
 // SPI is only supported on LInux
 #if defined(__PX4_LINUX)
@@ -1132,13 +1140,17 @@ GPS::run()
 
 			while ((helper_ret = _helper->receive(receive_timeout)) > 0 && !should_exit()) {
 
+				PX4_INFO("helper_ret=%d", helper_ret);
+
 				if (helper_ret & 1) {
+					PX4_INFO("GPS publish");
 					publish();
 
 					last_rate_count++;
 				}
 
 				if (_p_report_sat_info && (helper_ret & 2)) {
+					PX4_INFO("sat info publish");
 					publishSatelliteInfo();
 				}
 
@@ -1194,6 +1206,10 @@ GPS::run()
 				if (!_cfg_wiped) {
 					_cfg_wiped = true;
 				}
+			}
+
+			if (!should_exit()) {
+				PX4_WARN("helper receive failed/timed out: %d", helper_ret);
 			}
 
 			if (_healthy) {
