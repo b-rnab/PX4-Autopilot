@@ -52,20 +52,29 @@
 
 inline int listener_print_topic(const orb_id_t &orb_id, int subscription)
 {
-	static constexpr int max_size = 512;
-	alignas(8) char container[max_size];
+	static constexpr int max_size = 4096;
 
-	if (orb_id->o_size > max_size) {
-		PX4_ERR("topic %s too large (%i > %i)", orb_id->o_name, orb_id->o_size, max_size);
+	// allocate on heap to avoid large stack frames when printing big topics
+	void *container = malloc(max_size);
+
+	if (!container) {
+		PX4_ERR("listener: out of memory allocating %i bytes", max_size);
 		return -1;
 	}
 
-	int ret = orb_copy(orb_id, subscription, &container);
-
-	if (ret == PX4_OK) {
-		orb_print_message_internal(orb_id, &container, true);
+	if (orb_id->o_size > max_size) {
+		PX4_ERR("topic %s too large (%i > %i)", orb_id->o_name, orb_id->o_size, max_size);
+		free(container);
+		return -1;
 	}
 
+	int ret = orb_copy(orb_id, subscription, container);
+
+	if (ret == PX4_OK) {
+		orb_print_message_internal(orb_id, container, true);
+	}
+
+	free(container);
 	return ret;
 }
 

@@ -34,7 +34,7 @@
 px4_add_module(
 	MODULE systemcmds__topic_listener
 	MAIN listener
-	STACK_MAIN 4096
+	STACK_MAIN 8192
 	SRCS
 		listener_main.cpp
 	)
