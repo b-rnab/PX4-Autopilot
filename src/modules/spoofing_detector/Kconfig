@@ -1,0 +1,5 @@
+menuconfig MODULES_SPOOFING_DETECTOR
+	bool "spoofing_detector"
+	default n
+	---help---
+		Enable support for carrier phase and IMU based GNSS spoofing detector.
