@@ -91,8 +91,12 @@ void SpoofingDetector::addGpsSample(const sensor_gps_raw_s &gps_raw)
 	const int index = _gps_buffer_count - 1;
 
 	_gps_buffer[index].timestamp_sample = gps_raw.timestamp_sample;
+	_gps_buffer[index].nsats = gps_raw.nsats;
 
 	for (int i = 0; i < 32; i++) {
+		_gps_buffer[index].gnss_id[i] = gps_raw.gnss_id[i];
+		_gps_buffer[index].sv_id[i] = gps_raw.sv_id[i];
+
 		_gps_buffer[index].carrier_phase[i] = gps_raw.carrier_phase[i];
 		_gps_buffer[index].flags[i] = gps_raw.flags[i];
 

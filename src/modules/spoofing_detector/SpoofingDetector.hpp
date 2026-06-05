@@ -46,8 +46,17 @@ private:
 	//buffer structs
 	struct GpsSample {
 		uint64_t timestamp_sample{};
+		//how many useful entries there is in the sample
+		uint8_t nsats{};
+
+		//which constellation
+		uint8_t gnss_id[32]{};
+		//which satellite number
+		uint8_t sv_id[32]{};
+
 		double carrier_phase[32]{};
 		double detrended_carrier_phase[32]{};
+
 		uint8_t flags[32]{};
 		bool carrier_phase_valid[32]{};
 		bool detrended_valid[32]{};
