@@ -92,9 +92,14 @@ void SpoofingDetector::addGpsSample(const sensor_gps_raw_s &gps_raw)
 
 	_gps_buffer[index].timestamp_sample = gps_raw.timestamp_sample;
 
-	for (int i = 0; i < 32; i++){
+	for (int i = 0; i < 32; i++) {
 		_gps_buffer[index].carrier_phase[i] = gps_raw.carrier_phase[i];
 		_gps_buffer[index].flags[i] = gps_raw.flags[i];
+
+		//checking for the CP_VALID and HALF_CYCLE flags
+		_gps_buffer[index].carrier_phase_valid[i] =
+			(gps_raw.flags[i] & sensor_gps_raw_s::FLAG_CP_VALID)
+			&& (gps_raw.flags[i] & sensor_gps_raw_s::FLAG_HALF_CYCLE);
 
 		//every time a new carrier phase value is added its detrended value should be set to zero
 		_gps_buffer[index].detrended_carrier_phase[i] = 0.0;
@@ -131,6 +136,34 @@ bool SpoofingDetector::windowReady()
 void SpoofingDetector::detrendSample()
 {
 	const int index = _gps_buffer_count - 1;
+
+	//loop through every satellite
+	for (int i = 0; i < 32; i++) {
+		double sum = 0.0;
+		int count = 0;
+
+		//add 20 samples together
+		for (int j = 0; j < GPS_BUFFER_SIZE; j++) {
+
+			//only add sample if the flags are on
+			if (_gps_buffer[j].carrier_phase_valid[i]) {
+				sum += _gps_buffer[j].carrier_phase[i];
+				count++;
+			}
+		}
+
+		if (count > 0 && _gps_buffer[index].carrier_phase_valid[i]) {
+			const double mean = sum / count;
+			const double current = _gps_buffer[index].carrier_phase[i];
+
+			_gps_buffer[index].detrended_carrier_phase[i] = current - mean;
+			_gps_buffer[index].detrended_valid[i] = true;
+
+		} else {
+			_gps_buffer[index].detrended_carrier_phase[i] = 0.0;
+			_gps_buffer[index].detrended_valid[i] = false;
+		}
+	}
 }
 
 bool SpoofingDetector::runSpoofingDetection()

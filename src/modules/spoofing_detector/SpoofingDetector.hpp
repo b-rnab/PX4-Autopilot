@@ -49,6 +49,7 @@ private:
 		double carrier_phase[32]{};
 		double detrended_carrier_phase[32]{};
 		uint8_t flags[32]{};
+		bool carrier_phase_valid[32]{};
 		bool detrended_valid[32]{};
 	};
 

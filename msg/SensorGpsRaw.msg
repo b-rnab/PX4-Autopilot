@@ -26,11 +26,7 @@ uint8[32]   flags           # see bit constants
 # Flags bitmask for flags[i] (mapped from UBX trkStat)
 uint8 FLAG_PR_VALID     = 1
 uint8 FLAG_CP_VALID     = 2
-uint8 FLAG_DO_VALID     = 4
-uint8 FLAG_PR_USED      = 8
-uint8 FLAG_SUB_HALF_CYC = 16
-uint8 FLAG_HALF_CYCLE   = 32
-uint8 FLAG_CODE_LOCK    = 64
-uint8 FLAG_CARR_LOCK    = 128
+uint8 FLAG_HALF_CYCLE   = 4
+uint8 FLAG_SUB_HALF_CYC = 8
 
 # TOPICS sensor_gps_raw
